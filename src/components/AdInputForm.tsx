@@ -21,6 +21,7 @@ interface AdInputFormProps {
 }
 
 const CTA_OPTIONS = [
+  "Buy Now",
   "Shop Now",
   "Learn More", 
   "Sign Up",

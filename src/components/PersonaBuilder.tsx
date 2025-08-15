@@ -2,7 +2,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { UserCog, X, Plus } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
+import { UserCog, X, Plus, Sparkles } from "lucide-react";
+import { useState } from "react";
 
 export interface PersonaProfile {
   id: string;
@@ -10,6 +12,14 @@ export interface PersonaProfile {
   gender: string;
   geography: string;
   interests: string[];
+  character?: string;
+}
+
+export interface SuggestedPersona {
+  id: string;
+  name: string;
+  description: string;
+  details: string;
 }
 
 const AGE_GROUPS = [
@@ -62,13 +72,17 @@ interface PersonaBuilderProps {
 }
 
 export const PersonaBuilder = ({ personas, setPersonas }: PersonaBuilderProps) => {
+  const [suggestedPersonas, setSuggestedPersonas] = useState<SuggestedPersona[]>([]);
+  const [showingSuggestions, setShowingSuggestions] = useState<string | null>(null);
+
   const addNewPersona = () => {
     const newPersona: PersonaProfile = {
       id: `persona-${Date.now()}`,
       ageGroup: "",
       gender: "",
       geography: "",
-      interests: []
+      interests: [],
+      character: ""
     };
     setPersonas([...personas, newPersona]);
   };
@@ -97,7 +111,52 @@ export const PersonaBuilder = ({ personas, setPersonas }: PersonaBuilderProps) =
     }
   };
 
+  const generateSuggestions = (persona: PersonaProfile) => {
+    if (!persona.ageGroup || !persona.gender || !persona.geography) return;
+    
+    const names = ["Alex", "Sarah", "Michael", "Emma", "David", "Lisa", "James", "Anna", "Robert", "Maria"];
+    const suggestions: SuggestedPersona[] = [];
+    
+    for (let i = 0; i < 5; i++) {
+      const name = names[Math.floor(Math.random() * names.length)];
+      const age = getRandomAge(persona.ageGroup);
+      const interests = persona.interests.slice(0, 2).join(", ");
+      
+      suggestions.push({
+        id: `suggestion-${i}`,
+        name,
+        description: `${age} y/o ${persona.gender.toLowerCase()} from ${persona.geography}`,
+        details: interests ? `Interested in ${interests}` : "Various interests"
+      });
+    }
+    
+    setSuggestedPersonas(suggestions);
+    setShowingSuggestions(persona.id);
+  };
+
+  const getRandomAge = (ageGroup: string) => {
+    const ranges: { [key: string]: [number, number] } = {
+      "18–24": [18, 24],
+      "25–34": [25, 34],
+      "35–44": [35, 44],
+      "45–54": [45, 54],
+      "55–64": [55, 64],
+      "65+": [65, 75]
+    };
+    const [min, max] = ranges[ageGroup] || [25, 35];
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  };
+
+  const selectSuggestedPersona = (suggestion: SuggestedPersona, personaId: string) => {
+    updatePersona(personaId, 'character', `${suggestion.name} - ${suggestion.description}. ${suggestion.details}`);
+    setShowingSuggestions(null);
+  };
+
   const getPersonaName = (persona: PersonaProfile) => {
+    if (persona.character) {
+      const name = persona.character.split(' - ')[0];
+      return name || "Custom Persona";
+    }
     if (!persona.ageGroup || !persona.gender) return "New Persona";
     return `${persona.ageGroup} ${persona.gender}${persona.geography ? ` from ${persona.geography}` : ''}`;
   };
@@ -166,7 +225,14 @@ export const PersonaBuilder = ({ personas, setPersonas }: PersonaBuilderProps) =
                 <label className="text-xs font-medium text-muted-foreground">Geography</label>
                 <Select 
                   value={persona.geography} 
-                  onValueChange={(value) => updatePersona(persona.id, 'geography', value)}
+                  onValueChange={(value) => {
+                    updatePersona(persona.id, 'geography', value);
+                    // Generate suggestions when all required fields are filled
+                    const updatedPersona = { ...persona, geography: value };
+                    if (updatedPersona.ageGroup && updatedPersona.gender && value) {
+                      generateSuggestions(updatedPersona);
+                    }
+                  }}
                 >
                   <SelectTrigger className="h-8">
                     <SelectValue placeholder="Select country" />
@@ -207,6 +273,38 @@ export const PersonaBuilder = ({ personas, setPersonas }: PersonaBuilderProps) =
                   ))}
                 </div>
               )}
+            </div>
+
+            {showingSuggestions === persona.id && suggestedPersonas.length > 0 && (
+              <div>
+                <label className="text-xs font-medium text-muted-foreground flex items-center gap-1">
+                  <Sparkles className="h-3 w-3" />
+                  AI Suggested Personas
+                </label>
+                <div className="grid gap-2 mt-2">
+                  {suggestedPersonas.map(suggestion => (
+                    <div 
+                      key={suggestion.id}
+                      className="p-2 border rounded cursor-pointer hover:bg-accent/20 transition-colors"
+                      onClick={() => selectSuggestedPersona(suggestion, persona.id)}
+                    >
+                      <div className="font-medium text-sm">{suggestion.name}</div>
+                      <div className="text-xs text-muted-foreground">{suggestion.description}</div>
+                      <div className="text-xs text-muted-foreground">{suggestion.details}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div>
+              <label className="text-xs font-medium text-muted-foreground">Character Details</label>
+              <Textarea 
+                placeholder="Describe this persona's character, personality, and background..."
+                value={persona.character || ""}
+                onChange={(e) => updatePersona(persona.id, 'character', e.target.value)}
+                className="min-h-[80px] text-sm"
+              />
             </div>
           </div>
         ))}

@@ -17,18 +17,18 @@ All colors MUST be HSL.
     --popover: 0 0% 100%;
     --popover-foreground: 280 15% 9%;
 
-    --primary: 280 100% 70%;
+    --primary: 210 100% 56%;
     --primary-foreground: 210 20% 98%;
-    --primary-glow: 280 100% 80%;
+    --primary-glow: 210 100% 66%;
 
-    --secondary: 200 100% 85%;
-    --secondary-foreground: 200 100% 25%;
+    --secondary: 158 64% 52%;
+    --secondary-foreground: 158 20% 98%;
 
-    --muted: 330 20% 95%;
-    --muted-foreground: 330 10% 55%;
+    --muted: 210 20% 95%;
+    --muted-foreground: 210 10% 55%;
 
-    --accent: 45 100% 70%;
-    --accent-foreground: 45 100% 20%;
+    --accent: 173 80% 40%;
+    --accent-foreground: 173 20% 98%;
 
     --success: 150 80% 45%;
     --success-foreground: 150 20% 98%;
@@ -44,10 +44,10 @@ All colors MUST be HSL.
     --ring: 280 100% 70%;
 
     /* Creative Design System Tokens */
-    --gradient-primary: linear-gradient(135deg, hsl(280 100% 70%), hsl(320 100% 75%));
-    --gradient-secondary: linear-gradient(135deg, hsl(200 100% 85%), hsl(180 80% 80%));
+    --gradient-primary: linear-gradient(135deg, hsl(210 100% 56%), hsl(173 80% 40%));
+    --gradient-secondary: linear-gradient(135deg, hsl(158 64% 52%), hsl(210 100% 66%));
     --gradient-success: linear-gradient(135deg, hsl(150 80% 45%), hsl(170 75% 50%));
-    --gradient-hero: linear-gradient(135deg, hsl(280 100% 70%) 0%, hsl(320 100% 75%) 30%, hsl(45 100% 70%) 70%, hsl(200 100% 85%) 100%);
+    --gradient-hero: linear-gradient(135deg, hsl(210 100% 56%) 0%, hsl(173 80% 40%) 30%, hsl(158 64% 52%) 70%, hsl(210 100% 66%) 100%);
     
     --shadow-sm: 0 1px 2px 0 hsl(220 13% 91% / 0.4);
     --shadow-md: 0 4px 6px -1px hsl(220 13% 91% / 0.4), 0 2px 4px -1px hsl(220 13% 91% / 0.2);
@@ -86,18 +86,18 @@ All colors MUST be HSL.
     --popover: 280 25% 12%;
     --popover-foreground: 280 20% 95%;
 
-    --primary: 280 100% 70%;
-    --primary-foreground: 280 20% 95%;
-    --primary-glow: 280 100% 80%;
+    --primary: 210 100% 56%;
+    --primary-foreground: 210 20% 95%;
+    --primary-glow: 210 100% 66%;
 
-    --secondary: 200 80% 20%;
-    --secondary-foreground: 200 100% 85%;
+    --secondary: 158 50% 25%;
+    --secondary-foreground: 158 64% 80%;
 
-    --muted: 280 20% 18%;
-    --muted-foreground: 280 10% 70%;
+    --muted: 210 20% 18%;
+    --muted-foreground: 210 10% 70%;
 
-    --accent: 45 90% 60%;
-    --accent-foreground: 45 100% 95%;
+    --accent: 173 70% 45%;
+    --accent-foreground: 173 80% 95%;
 
     --success: 150 80% 45%;
     --success-foreground: 150 20% 98%;
@@ -113,10 +113,10 @@ All colors MUST be HSL.
     --ring: 280 100% 70%;
 
     /* Creative Dark mode gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(280 100% 70%), hsl(320 100% 75%));
-    --gradient-secondary: linear-gradient(135deg, hsl(200 80% 20%), hsl(180 70% 25%));
+    --gradient-primary: linear-gradient(135deg, hsl(210 100% 56%), hsl(173 80% 40%));
+    --gradient-secondary: linear-gradient(135deg, hsl(158 50% 25%), hsl(173 60% 30%));
     --gradient-success: linear-gradient(135deg, hsl(150 80% 45%), hsl(170 75% 50%));
-    --gradient-hero: linear-gradient(135deg, hsl(280 100% 70%) 0%, hsl(320 100% 75%) 30%, hsl(45 90% 60%) 70%, hsl(200 80% 50%) 100%);
+    --gradient-hero: linear-gradient(135deg, hsl(210 100% 56%) 0%, hsl(173 80% 40%) 30%, hsl(158 64% 52%) 70%, hsl(210 100% 66%) 100%);
     
     --shadow-sm: 0 1px 2px 0 hsl(0 0% 0% / 0.3);
     --shadow-md: 0 4px 6px -1px hsl(0 0% 0% / 0.3), 0 2px 4px -1px hsl(0 0% 0% / 0.2);
