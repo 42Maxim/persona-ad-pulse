@@ -2,41 +2,43 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { AdPreview } from "@/components/AdPreview";
 import { AdInputForm } from "@/components/AdInputForm";
-import { PersonaSelector, PERSONAS } from "@/components/PersonaSelector";
+import { PersonaBuilder, PersonaProfile } from "@/components/PersonaBuilder";
 import { ResultsDisplay } from "@/components/ResultsDisplay";
 import { useToast } from "@/hooks/use-toast";
 import { Sparkles, Zap } from "lucide-react";
 
 // Mock data for demonstration
-const generateMockResults = (selectedPersonas: string[], adCopy: string) => {
-  const selectedPersonaData = PERSONAS.filter(p => selectedPersonas.includes(p.id));
-  
-  const personaFeedback = selectedPersonaData.map(persona => ({
+const generateMockResults = (personas: PersonaProfile[], adCopy: string) => {
+  const personaFeedback = personas.map((persona, index) => ({
     personaId: persona.id,
-    personaName: persona.name,
-    archetype: persona.archetype,
+    personaName: `${persona.ageGroup} ${persona.gender}`,
+    archetype: `${persona.ageGroup} ${persona.gender} from ${persona.geography}`,
     resonanceScore: Math.floor(Math.random() * 4) + 6, // 6-10 range
-    keyQuote: `This ad ${Math.random() > 0.5 ? 'really speaks to' : 'somewhat resonates with'} my values and needs.`,
+    keyQuote: `This ad ${Math.random() > 0.5 ? 'really speaks to' : 'somewhat resonates with'} my interests in ${persona.interests.slice(0, 2).join(' and ')}.`,
     strengths: [
       "Clear messaging",
-      "Authentic tone",
-      "Relevant content"
+      "Authentic tone", 
+      "Relevant content",
+      "Appeals to my demographic"
     ].slice(0, Math.floor(Math.random() * 2) + 2),
     weaknesses: [
       "CTA could be stronger",
       "Visual appeal needs work",
-      "Missing emotional hook"
+      "Missing emotional hook",
+      "Doesn't match my interests"
     ].slice(0, Math.floor(Math.random() * 2) + 1),
     confusingPoints: [
       "Unclear value proposition",
-      "Too many competing elements"
+      "Too many competing elements",
+      "Cultural mismatch"
     ].slice(0, Math.floor(Math.random() * 2) + 1),
     tags: [
       "Clear Messaging",
-      "Strong Visuals",
+      "Strong Visuals", 
       "Effective CTA",
       "Good Emotional Hook",
-      "Confusing Layout"
+      "Confusing Layout",
+      "Demographic Match"
     ].slice(0, Math.floor(Math.random() * 3) + 2)
   }));
 
@@ -50,7 +52,8 @@ const generateMockResults = (selectedPersonas: string[], adCopy: string) => {
       "Strengthen the call-to-action with more action-oriented language",
       "Add social proof elements to build trust",
       "Consider A/B testing different visual layouts",
-      "Optimize copy for better emotional resonance"
+      "Optimize copy for better emotional resonance",
+      "Better target specific demographics and interests"
     ].slice(0, Math.floor(Math.random() * 2) + 2),
     personaFeedback
   };
@@ -65,7 +68,7 @@ const Index = () => {
   const [imageUrl, setImageUrl] = useState("");
   const [videoUrl, setVideoUrl] = useState("");
   const [cta, setCta] = useState("");
-  const [selectedPersonas, setSelectedPersonas] = useState<string[]>([]);
+  const [personas, setPersonas] = useState<PersonaProfile[]>([]);
   
   // Results state
   const [results, setResults] = useState<any>(null);
@@ -83,10 +86,20 @@ const Index = () => {
       return;
     }
 
-    if (selectedPersonas.length === 0) {
+    if (personas.length === 0) {
       toast({
-        title: "No Personas Selected",
-        description: "Please select at least one persona for analysis.",
+        title: "No Personas Created",
+        description: "Please create at least one persona for analysis.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const hasIncompletePersona = personas.some(p => !p.ageGroup || !p.gender || !p.geography || p.interests.length === 0);
+    if (hasIncompletePersona) {
+      toast({
+        title: "Incomplete Personas", 
+        description: "Please complete all persona details before analyzing.",
         variant: "destructive"
       });
       return;
@@ -99,12 +112,12 @@ const Index = () => {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 2000));
       
-      const mockResults = generateMockResults(selectedPersonas, adCopy);
+      const mockResults = generateMockResults(personas, adCopy);
       setResults(mockResults);
       
       toast({
         title: "Analysis Complete!",
-        description: `Your ad has been analyzed by ${selectedPersonas.length} personas.`,
+        description: `Your ad has been analyzed by ${personas.length} personas.`,
       });
     } catch (error) {
       toast({
@@ -140,11 +153,47 @@ const Index = () => {
       </header>
 
       <div className="container mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Left Column - Ad Preview */}
-          <div className="lg:col-span-1">
-            <div className="sticky top-24">
-              <h2 className="text-lg font-semibold mb-4">Ad Preview</h2>
+        <div className="space-y-8">
+          {/* Section 1: Ad Content Input */}
+          <section>
+            <h2 className="text-xl font-semibold mb-6 text-center gradient-hero bg-clip-text text-transparent">
+              Create Your Ad Content
+            </h2>
+            <div className="max-w-2xl mx-auto">
+              <AdInputForm
+                adCopy={adCopy}
+                setAdCopy={setAdCopy}
+                imageFile={imageFile}
+                setImageFile={setImageFile}
+                imageUrl={imageUrl}
+                setImageUrl={setImageUrl}
+                videoUrl={videoUrl}
+                setVideoUrl={setVideoUrl}
+                cta={cta}
+                setCta={setCta}
+              />
+            </div>
+          </section>
+
+          {/* Section 2: Persona Builder */}
+          <section>
+            <h2 className="text-xl font-semibold mb-6 text-center gradient-hero bg-clip-text text-transparent">
+              Build Your Target Personas
+            </h2>
+            <div className="max-w-4xl mx-auto">
+              <PersonaBuilder
+                personas={personas}
+                setPersonas={setPersonas}
+              />
+            </div>
+          </section>
+
+          {/* Section 3: Ad Preview */}
+          <section>
+            <h2 className="text-xl font-semibold mb-6 text-center gradient-hero bg-clip-text text-transparent">
+              Ad Preview
+            </h2>
+            <div className="max-w-md mx-auto">
               <AdPreview
                 adCopy={adCopy}
                 imageUrl={imageUrl}
@@ -152,53 +201,36 @@ const Index = () => {
                 cta={cta}
               />
             </div>
-          </div>
+          </section>
 
-          {/* Middle Column - Input Forms */}
-          <div className="lg:col-span-1 space-y-6">
-            <AdInputForm
-              adCopy={adCopy}
-              setAdCopy={setAdCopy}
-              imageFile={imageFile}
-              setImageFile={setImageFile}
-              imageUrl={imageUrl}
-              setImageUrl={setImageUrl}
-              videoUrl={videoUrl}
-              setVideoUrl={setVideoUrl}
-              cta={cta}
-              setCta={setCta}
-            />
+          {/* Section 4: Analyze Button & Results */}
+          <section>
+            <div className="text-center mb-8">
+              <Button
+                onClick={handleAnalyzeAd}
+                className="gradient-primary text-primary-foreground hover:shadow-glow transition-slow font-semibold px-12"
+                size="lg"
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary-foreground mr-2" />
+                    Analyzing...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="h-4 w-4 mr-2" />
+                    Analyze Ad
+                  </>
+                )}
+              </Button>
+            </div>
 
-            <PersonaSelector
-              selectedPersonas={selectedPersonas}
-              setSelectedPersonas={setSelectedPersonas}
-            />
-
-            <Button
-              onClick={handleAnalyzeAd}
-              className="w-full gradient-primary text-primary-foreground hover:shadow-glow transition-slow font-semibold"
-              size="lg"
-              disabled={isLoading}
-            >
-              {isLoading ? (
-                <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary-foreground mr-2" />
-                  Analyzing...
-                </>
-              ) : (
-                <>
-                  <Sparkles className="h-4 w-4 mr-2" />
-                  Analyze Ad
-                </>
-              )}
-            </Button>
-          </div>
-
-          {/* Right Column - Results */}
-          <div className="lg:col-span-1">
             {showResults ? (
-              <div className="sticky top-24">
-                <h2 className="text-lg font-semibold mb-4">Analysis Results</h2>
+              <div className="max-w-4xl mx-auto">
+                <h2 className="text-xl font-semibold mb-6 text-center gradient-hero bg-clip-text text-transparent">
+                  Analysis Results
+                </h2>
                 <ResultsDisplay
                   overallScore={results?.overallScore || 0}
                   estimatedCost={results?.estimatedCost || 0}
@@ -208,14 +240,12 @@ const Index = () => {
                 />
               </div>
             ) : (
-              <div className="sticky top-24">
-                <div className="text-center py-12 text-muted-foreground">
-                  <Sparkles className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                  <p>Results will appear here after analysis</p>
-                </div>
+              <div className="text-center py-12 text-muted-foreground max-w-md mx-auto">
+                <Sparkles className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                <p>Analysis results will appear here after you create personas and analyze your ad</p>
               </div>
             )}
-          </div>
+          </section>
         </div>
       </div>
     </div>
