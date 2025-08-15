@@ -8,9 +8,9 @@ import { useState } from "react";
 
 export interface PersonaProfile {
   id: string;
-  ageGroup: string;
-  gender: string;
-  geography: string;
+  ageGroups: string[];
+  genders: string[];
+  geographies: string[];
   interests: string[];
   character?: string;
 }
@@ -78,9 +78,9 @@ export const PersonaBuilder = ({ personas, setPersonas }: PersonaBuilderProps) =
   const addNewPersona = () => {
     const newPersona: PersonaProfile = {
       id: `persona-${Date.now()}`,
-      ageGroup: "",
-      gender: "",
-      geography: "",
+      ageGroups: [],
+      genders: [],
+      geographies: [],
       interests: [],
       character: ""
     };
@@ -112,20 +112,23 @@ export const PersonaBuilder = ({ personas, setPersonas }: PersonaBuilderProps) =
   };
 
   const generateSuggestions = (persona: PersonaProfile) => {
-    if (!persona.ageGroup || !persona.gender || !persona.geography) return;
+    if (!persona.interests.length || !persona.ageGroups.length || !persona.genders.length || !persona.geographies.length) return;
     
     const names = ["Alex", "Sarah", "Michael", "Emma", "David", "Lisa", "James", "Anna", "Robert", "Maria"];
     const suggestions: SuggestedPersona[] = [];
     
     for (let i = 0; i < 5; i++) {
       const name = names[Math.floor(Math.random() * names.length)];
-      const age = getRandomAge(persona.ageGroup);
+      const ageGroup = persona.ageGroups[Math.floor(Math.random() * persona.ageGroups.length)];
+      const age = getRandomAge(ageGroup);
+      const gender = persona.genders[Math.floor(Math.random() * persona.genders.length)];
+      const geography = persona.geographies[Math.floor(Math.random() * persona.geographies.length)];
       const interests = persona.interests.slice(0, 2).join(", ");
       
       suggestions.push({
         id: `suggestion-${i}`,
         name,
-        description: `${age} y/o ${persona.gender.toLowerCase()} from ${persona.geography}`,
+        description: `${age} y/o ${gender.toLowerCase()} from ${geography}`,
         details: interests ? `Interested in ${interests}` : "Various interests"
       });
     }
@@ -157,8 +160,11 @@ export const PersonaBuilder = ({ personas, setPersonas }: PersonaBuilderProps) =
       const name = persona.character.split(' - ')[0];
       return name || "Custom Persona";
     }
-    if (!persona.ageGroup || !persona.gender) return "New Persona";
-    return `${persona.ageGroup} ${persona.gender}${persona.geography ? ` from ${persona.geography}` : ''}`;
+    if (!persona.ageGroups.length || !persona.genders.length) return "New Persona";
+    const ageRange = persona.ageGroups.length === 1 ? persona.ageGroups[0] : `${persona.ageGroups.length} age groups`;
+    const genderText = persona.genders.length === 1 ? persona.genders[0] : `${persona.genders.length} genders`;
+    const geoText = persona.geographies.length ? ` (${persona.geographies.length} locations)` : '';
+    return `${ageRange} ${genderText}${geoText}`;
   };
 
   return (
@@ -188,67 +194,115 @@ export const PersonaBuilder = ({ personas, setPersonas }: PersonaBuilderProps) =
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
               <div>
-                <label className="text-xs font-medium text-muted-foreground">Age Group</label>
-                <Select 
-                  value={persona.ageGroup} 
-                  onValueChange={(value) => updatePersona(persona.id, 'ageGroup', value)}
-                >
+                <label className="text-xs font-medium text-muted-foreground">Age Groups</label>
+                <Select onValueChange={(value) => {
+                  const currentAges = persona.ageGroups;
+                  if (!currentAges.includes(value)) {
+                    updatePersona(persona.id, 'ageGroups', [...currentAges, value]);
+                  }
+                }}>
                   <SelectTrigger className="h-8">
-                    <SelectValue placeholder="Select age" />
+                    <SelectValue placeholder="Add age groups" />
                   </SelectTrigger>
                   <SelectContent>
-                    {AGE_GROUPS.map(age => (
+                    {AGE_GROUPS.filter(age => !persona.ageGroups.includes(age)).map(age => (
                       <SelectItem key={age} value={age}>{age}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
+                {persona.ageGroups.length > 0 && (
+                  <div className="flex flex-wrap gap-1 mt-2">
+                    {persona.ageGroups.map(age => (
+                      <Badge 
+                        key={age} 
+                        variant="secondary" 
+                        className="text-xs cursor-pointer hover:bg-destructive hover:text-destructive-foreground"
+                        onClick={() => updatePersona(persona.id, 'ageGroups', persona.ageGroups.filter(a => a !== age))}
+                      >
+                        {age} <X className="h-3 w-3 ml-1" />
+                      </Badge>
+                    ))}
+                  </div>
+                )}
               </div>
 
               <div>
-                <label className="text-xs font-medium text-muted-foreground">Gender</label>
-                <Select 
-                  value={persona.gender} 
-                  onValueChange={(value) => updatePersona(persona.id, 'gender', value)}
-                >
+                <label className="text-xs font-medium text-muted-foreground">Genders</label>
+                <Select onValueChange={(value) => {
+                  const currentGenders = persona.genders;
+                  if (!currentGenders.includes(value)) {
+                    updatePersona(persona.id, 'genders', [...currentGenders, value]);
+                  }
+                }}>
                   <SelectTrigger className="h-8">
-                    <SelectValue placeholder="Select gender" />
+                    <SelectValue placeholder="Add genders" />
                   </SelectTrigger>
                   <SelectContent>
-                    {GENDERS.map(gender => (
+                    {GENDERS.filter(gender => !persona.genders.includes(gender)).map(gender => (
                       <SelectItem key={gender} value={gender}>{gender}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
+                {persona.genders.length > 0 && (
+                  <div className="flex flex-wrap gap-1 mt-2">
+                    {persona.genders.map(gender => (
+                      <Badge 
+                        key={gender} 
+                        variant="secondary" 
+                        className="text-xs cursor-pointer hover:bg-destructive hover:text-destructive-foreground"
+                        onClick={() => updatePersona(persona.id, 'genders', persona.genders.filter(g => g !== gender))}
+                      >
+                        {gender} <X className="h-3 w-3 ml-1" />
+                      </Badge>
+                    ))}
+                  </div>
+                )}
               </div>
 
               <div>
-                <label className="text-xs font-medium text-muted-foreground">Geography</label>
-                <Select 
-                  value={persona.geography} 
-                  onValueChange={(value) => {
-                    updatePersona(persona.id, 'geography', value);
-                    // Generate suggestions when all required fields are filled
-                    const updatedPersona = { ...persona, geography: value };
-                    if (updatedPersona.ageGroup && updatedPersona.gender && value) {
-                      generateSuggestions(updatedPersona);
-                    }
-                  }}
-                >
+                <label className="text-xs font-medium text-muted-foreground">Geographies</label>
+                <Select onValueChange={(value) => {
+                  const currentGeos = persona.geographies;
+                  if (!currentGeos.includes(value)) {
+                    updatePersona(persona.id, 'geographies', [...currentGeos, value]);
+                  }
+                }}>
                   <SelectTrigger className="h-8">
-                    <SelectValue placeholder="Select country" />
+                    <SelectValue placeholder="Add countries" />
                   </SelectTrigger>
                   <SelectContent>
-                    {COUNTRIES.map(country => (
+                    {COUNTRIES.filter(country => !persona.geographies.includes(country)).map(country => (
                       <SelectItem key={country} value={country}>{country}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
+                {persona.geographies.length > 0 && (
+                  <div className="flex flex-wrap gap-1 mt-2">
+                    {persona.geographies.map(geography => (
+                      <Badge 
+                        key={geography} 
+                        variant="secondary" 
+                        className="text-xs cursor-pointer hover:bg-destructive hover:text-destructive-foreground"
+                        onClick={() => updatePersona(persona.id, 'geographies', persona.geographies.filter(g => g !== geography))}
+                      >
+                        {geography} <X className="h-3 w-3 ml-1" />
+                      </Badge>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
 
             <div>
               <label className="text-xs font-medium text-muted-foreground">Interests</label>
-              <Select onValueChange={(value) => addInterest(persona.id, value)}>
+              <Select onValueChange={(value) => {
+                addInterest(persona.id, value);
+                // Generate suggestions after interests are added
+                const updatedPersona = { ...persona, interests: [...persona.interests, value] };
+                if (updatedPersona.ageGroups.length && updatedPersona.genders.length && updatedPersona.geographies.length && updatedPersona.interests.length) {
+                  generateSuggestions(updatedPersona);
+                }
+              }}>
                 <SelectTrigger className="h-8">
                   <SelectValue placeholder="Add interests" />
                 </SelectTrigger>

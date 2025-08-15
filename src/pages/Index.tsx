@@ -11,8 +11,8 @@ import { Sparkles, Zap } from "lucide-react";
 const generateMockResults = (personas: PersonaProfile[], adCopy: string) => {
   const personaFeedback = personas.map((persona, index) => ({
     personaId: persona.id,
-    personaName: `${persona.ageGroup} ${persona.gender}`,
-    archetype: `${persona.ageGroup} ${persona.gender} from ${persona.geography}`,
+    personaName: `${persona.ageGroups.join('/')} ${persona.genders.join('/')}`,
+    archetype: `${persona.ageGroups.join('/')} ${persona.genders.join('/')} from ${persona.geographies.join('/')}`,
     resonanceScore: Math.floor(Math.random() * 4) + 6, // 6-10 range
     keyQuote: `This ad ${Math.random() > 0.5 ? 'really speaks to' : 'somewhat resonates with'} my interests in ${persona.interests.slice(0, 2).join(' and ')}.`,
     strengths: [
@@ -95,7 +95,7 @@ const Index = () => {
       return;
     }
 
-    const hasIncompletePersona = personas.some(p => !p.ageGroup || !p.gender || !p.geography || p.interests.length === 0);
+    const hasIncompletePersona = personas.some(p => p.ageGroups.length === 0 || p.genders.length === 0 || p.geographies.length === 0 || p.interests.length === 0);
     if (hasIncompletePersona) {
       toast({
         title: "Incomplete Personas", 
